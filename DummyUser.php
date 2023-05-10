@@ -11,12 +11,14 @@ class DummyUser {
     const COMPANY_XLSX  = "company.xlsx";
     const NAME_XLSX     = "nameTable";
 
+    const FILE_TO_JSON  = "/json/";
+
     const GENDER_FEMALE = "f";
     const GENDER_MALE   = "m";
     const GENDER_NB     = "nb";
 
-    const FIRST_NAMES       = "vornamen";
-    const SURNAMES          = "_namen";
+    const FIRST_NAMES       = "names";
+    const SURNAMES          = "_surnames";
 
     const FIRSTNAMES_FEMALE = "_" . self::GENDER_FEMALE . "_" . self::FIRST_NAMES;
     const FIRSTNAMES_MALE   = "_" . self::GENDER_MALE . "_" . self::FIRST_NAMES;
@@ -25,7 +27,12 @@ class DummyUser {
     public function __construct() {
     }
 
-    public function createArrayFromExcel($tableName, $sheetName) {
+    public function getArrayFromJSON($fileName) {
+        $file = file_get_contents(self::FILE_TO_JSON . $fileName);
+        return json_decode($file);
+    }
+
+    public function getArrayFromExcel($tableName, $sheetName) {
         $xlsx = SimpleXLSX::parse($tableName);
         $metaData = $xlsx->sheetMeta();
         $num = count($metaData);
@@ -45,48 +52,43 @@ class DummyUser {
     }
 
     public function getSurnameArray($lang) {
-        return $this->createArrayFromExcel(self::NAME_XLSX, $lang . self::SURNAMES);
+        return $this->getArrayFromJSON(self::FILE_TO_JSON . $lang . self::SURNAMES);
+        //return $this->getArrayFromExcel(self::NAME_XLSX, $lang . self::SURNAMES);
     }
-
     public function getMaleNameArray($lang) {
-        return $this->createArrayFromExcel(self::NAME_XLSX, $lang . self::FIRSTNAMES_MALE);
+        return $this->getArrayFromJSON(self::FILE_TO_JSON, $lang . self::FIRSTNAMES_MALE);
+        //return $this->getArrayFromExcel(self::NAME_XLSX, $lang . self::FIRSTNAMES_MALE);
     }
-
     public function getFemaleNameArray($lang) {
-        return $this->createArrayFromExcel(self::NAME_XLSX, $lang . self::FIRSTNAMES_FEMALE);
+        return $this->getArrayFromJSON(self::FILE_TO_JSON, $lang . self::FIRSTNAMES_FEMALE);
+        //return $this->getArrayFromExcel(self::NAME_XLSX, $lang . self::FIRSTNAMES_FEMALE);
     }
-    public function getNonBinaryNameArray($lang) {
-        return $this->createArrayFromExcel(self::NAME_XLSX, $lang . self::FIRSTNAMES_NB);
+    public function getNonBinaryNameArray() {
+        return $this->getArrayFromJSON(self::FILE_TO_JSON, self::FIRSTNAMES_NB);
+        //return $this->getArrayFromExcel(self::NAME_XLSX, $lang . self::FIRSTNAMES_NB);
     }
 
-    public function getCompanyArray() {
-         $data = $this->createArrayFromExcel(self::COMPANY_XLSX, 'branches');
-         $company = [];
-         foreach ($data as $branch) {
-             $title = "Chief " . $branch . " Officer";
-             $acronym = "";
-             $string = explode(" ", $title);
-             foreach ($string as $word) {
-                 $acronym .= substr($word, 0, 1);
-             }
 
-             $branches = [];
+    /*public function getCompanyArray() {
+         //$data = $this->getArrayFromExcel(self::COMPANY_XLSX, 'branches');
+        //$data = $this->getCompanyStructureFromJSON();
+        $structure = 'hierarchy';
+        $userId = rand(100000, 99999999999);
+        $company = [
+            "id" => rand(100000, 9999999999),
+            "name" => "",
+            "org_structure" => $structure,
+            "leadership" => [
+                "position" => [
+                    "title" => '',
+                    "person" => $userId,
 
+                ],
 
-             $arr = [
-                 'title'    => $title,
-                 'acronym'  => $acronym,
-                 'branch'   => $branch,
-                 'division' => '',
-                 'product'  => '',
-                 'location' => '',
-                 'team'     => '',
-             ];
+            ]
+        ];
 
-             $company[] = $arr;
-         }
-         print_r($company);
-    }
+    }*/
 
     private function getLastName($lang) {
         $arr = $this->getSurnameArray($lang);
@@ -94,18 +96,21 @@ class DummyUser {
         return $arr[$key];
     }
 
-    private function getFirstName($lang) {
-
+    private function getFirstName($lang, $gender) {
+        if ($gender == 'f') {
+            $arr = $this->getFemaleNameArray($lang);
+        } elseif ($gender == 'm') {
+            $arr = $this->getMaleNameArray($lang);
+        } else {
+            $arr = $this->getNonBinaryNameArray();
+        }
         /*$key = array_rand($arr);
         return $arr[$key];*/
     }
 
 
-    public function createUser() {
-
-
-
-        /*$firstName = $this->getFirstName();
+    /*public function createUser() {
+        $firstName = $this->getFirstName();
         $lastName = $this->getLastName();
         $fullName = $firstName . " " . $lastName;
         $userName = $this->getUserName($fullName);
@@ -125,8 +130,8 @@ class DummyUser {
             'mut_user'      => 999999
         ];
         //print_r($user);
-        return $user;*/
-    }
+        return $user;
+    }*/
 
     /*private function createNameAssocArrFromJSON() {
         $file = file_get_contents($this->language . '.json');
@@ -144,8 +149,6 @@ class DummyUser {
         $arr = $this->createNameAssocArrFromJSON();
         return $arr['last_names'];
     }
-
-
 
     private function getUserName($fullName) {
         $fullName = $this->replaceSpecialCharacters($fullName);

@@ -1,0 +1,24 @@
+{
+  "hierarchical": {
+    "leadership": {
+      "office": {
+        "user_id": ,
+      },
+      "staff": ""
+    },
+    "branch": {
+      "office": "",
+      "staff": ""
+    },
+    "division": {
+      "office": ""
+    },
+    "subdivision": {
+      "office": ""
+    },
+    "team": {
+      "office": "",
+      "contributors": []
+    }
+  }
+}
