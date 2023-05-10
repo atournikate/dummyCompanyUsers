@@ -1,0 +1,85 @@
+{
+  "company": {
+    "id": "",
+    "name": "",
+    "org_structure": {
+      "hierarchical": {
+        "leadership": {
+          "office": "",
+          "staff": "",
+          "branch": {
+            "office": "",
+            "staff": "",
+            "division": {
+              "office": "",
+              "subdivision": {
+                "office": "",
+                "team": {
+                  "office": "",
+                  "contributors": []
+                }
+              }
+
+            }
+          }
+
+        }
+
+      },
+      "functional": {
+        "leadership": {
+          "office": "",
+          "job_function": {
+            "office": "",
+            "workers": []
+          }
+        }
+      },
+      "product_based": {
+        "leadership": {
+          "office": "",
+          "division": {
+            "office": "",
+            "team": []
+          }
+        }
+      },
+      "market_based": {
+        "leadership": [],
+        "industry": [],
+        "division": [],
+        "team": []
+      },
+      "geographical": {
+        "leadership": [],
+        "geographical_division": [],
+        "team": []
+      },
+      "process_based": {
+        "leadership": [],
+        "process": [],
+        "workers": []
+      },
+      "matrix": {
+        "leadership": [],
+        "division": [],
+        "project": [],
+        "group": []
+      },
+      "circular": {
+        "leadership": [],
+        "division": [],
+        "team": []
+      },
+      "flat": {
+        "project": [],
+        "workers": []
+      },
+      "network":{
+        "leadership": [],
+        "branch": []
+      }
+    }
+  }
+
+}
