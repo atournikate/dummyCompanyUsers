@@ -1,0 +1,10 @@
+{
+  "names": [
+    "Acme Corporation", "Blue Sun Corporation", "Cyberdyne Corporation", "Umbrella Corporation", "Weyland-Yutani", "North Central Positronics", "International Genetic Technologies", "Stark Industries", "Dunder Mfflin Paper Company", "Shinra Corporation", "Bad Wolf Corporation", "Abstergo Industries", "Universal Exports", "Silph Co.", "Initech", "Metacortex", "Gizmonic Institute", "M & M Enterprises", "VersaLife Corporation", "GenTek", "Khumalo", "Dharma Initiative", "Wolfram & Hart", "Global Dynamics", "Massive Dynamic", "Nakatomi Corporation", "Omni Consumer Products", "Sheinhardt Wig Company", "Sienar Fleet Systems", "Black Mesa Research", "Sinclair Solutions", "Pentex International", "Caliban Industries", "ArcJet Systems", "BlamCo Foodstuffs", "HalluciGen, Inc.", "Nuka Cola", "Aperture Science", "Ryan Industries", "Cerberus", "Landgraab Industries"
+  ],
+  "hierarchy": ["Chief", "President", "Vice President", "Director", "Manager", "Assistant Manager", "Supervisor", "Associate"],
+  "branches": [
+    "Executive", "Operations", "Financial", "Information", "Technology", "Sales", "Human Resources"
+  ]
+}
+
