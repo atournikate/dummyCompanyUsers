@@ -6,21 +6,20 @@ const LANG_FR = 'fr';
 const LANG_IT = 'it';
 
 class DummyUser {
-    const COMPANY_XLSX  = "company.xlsx";
-    const NAME_XLSX     = "nameTable";
-
     const FILE_TO_JSON  = "json/";
-
     const GENDER_FEMALE = "f";
     const GENDER_MALE   = "m";
     const GENDER_NB     = "nb";
-
     const FIRST_NAMES       = "names";
     const SURNAMES          = "_surnames";
-
     const FIRSTNAMES_FEMALE = "_" . self::GENDER_FEMALE . "_" . self::FIRST_NAMES;
     const FIRSTNAMES_MALE   = "_" . self::GENDER_MALE . "_" . self::FIRST_NAMES;
     const FIRSTNAMES_NB   = self::GENDER_NB . "_" . self::FIRST_NAMES;
+
+    const LANG_CODE_DE  = 100;
+    const LANG_CODE_FR  = 200;
+    const LANG_CODE_IT  = 300;
+    const LANG_CODE_EN  = 400;
 
     public function __construct() {
     }
@@ -30,47 +29,35 @@ class DummyUser {
         return json_decode($file, true);
     }
 
+    public function getRandomValueFromArray($array) {
+        $key = array_rand($array, 1);
+        return $array[$key];
+    }
+
+    public function updateArray($array, $fieldName, $value) {
+        $array[$fieldName] = $value;
+        return $array;
+    }
+
     private function createSurnameArray($lang) {
-        return $this->createArrayFromJSON($lang . self::SURNAMES);
-        //return $this->createArrayFromExcel(self::NAME_XLSX, $lang . self::SURNAMES);
+        $arr = $this->createArrayFromJSON($lang . self::SURNAMES);
+        return $arr['last_names'];
     }
     private function createMaleNameArray($lang) {
-        return $this->createArrayFromJSON( $lang . self::FIRSTNAMES_MALE);
-        //return $this->createArrayFromExcel(self::NAME_XLSX, $lang . self::FIRSTNAMES_MALE);
+        $arr = $this->createArrayFromJSON( $lang . self::FIRSTNAMES_MALE);
+        return $arr['first_names'];
     }
     private function createFemaleNameArray($lang) {
-        return $this->createArrayFromJSON( $lang . self::FIRSTNAMES_FEMALE);
-        //return $this->createArrayFromExcel(self::NAME_XLSX, $lang . self::FIRSTNAMES_FEMALE);
+        $arr = $this->createArrayFromJSON( $lang . self::FIRSTNAMES_FEMALE);
+        return $arr['first_names'];
     }
     private function createNonBinaryNameArray() {
-        return $this->createArrayFromJSON( self::FIRSTNAMES_NB);
-        //return $this->createArrayFromExcel(self::NAME_XLSX, $lang . self::FIRSTNAMES_NB);
+        $arr = $this->createArrayFromJSON( self::FIRSTNAMES_NB);
+        return $arr['first_names'];
     }
-
-    private function createLastName($lang) {
-        $arr = $this->createSurnameArray($lang);
-        $num = count($arr['last_names']);
-        $key = rand(0, $num);
-        return ucfirst(strtolower($arr['last_names'][$key]));
-    }
-
-    private function createFirstName($lang, $gender) {
-        if ($gender == 'f') {
-            $arr = $this->createFemaleNameArray($lang);
-        } elseif ($gender == 'm') {
-            $arr = $this->createMaleNameArray($lang);
-        } else {
-            $arr = $this->createNonBinaryNameArray();
-        }
-        $num = count($arr['first_names']);
-        $key = rand(0, $num);
-
-        return ucfirst(strtolower($arr['first_names'][$key]));
-    }
-
     private function createGender() {
-        $rand = rand(1,10);
-        if ($rand == 1 || $rand == 2) {
+        $rand = rand(0,10);
+        if ($rand == 0 || $rand == 1) {
             $gender = self::GENDER_NB;
         } elseif ($rand <= 6) {
             $gender = self::GENDER_FEMALE;
@@ -80,6 +67,23 @@ class DummyUser {
 
         }
         return $gender;
+    }
+    private function createLastName($lang) {
+        $arr = $this->createSurnameArray($lang);
+        $value = $this->getRandomValueFromArray($arr);
+        return ucfirst(strtolower($value));
+    }
+    private function createFirstName($lang, $gender) {
+        if ($gender == 'f') {
+            $arr = $this->createFemaleNameArray($lang);
+        } elseif ($gender == 'm') {
+            $arr = $this->createMaleNameArray($lang);
+        } else {
+            $arr = $this->createNonBinaryNameArray();
+        }
+        $value = $this->getRandomValueFromArray($arr);
+
+        return ucfirst(strtolower($value));
     }
 
     private function createLanguageLocation() {
@@ -98,15 +102,15 @@ class DummyUser {
 
     private function createUserId($lang) {
         if ($lang == LANG_EN) {
-            $pre = 400;
+            $pre = self::LANG_CODE_EN;
         } elseif ($lang == LANG_IT) {
-            $pre = 300;
+            $pre = self::LANG_CODE_IT;
         } elseif ($lang == LANG_FR) {
-            $pre = 200;
+            $pre = self::LANG_CODE_FR;
         } else {
-            $pre = 100;
+            $pre = self::LANG_CODE_DE;
         }
-        $rand = rand(10000, 99999);
+        $rand = rand(1000, 9999);
         return $pre . $rand;
     }
 
@@ -135,23 +139,23 @@ class DummyUser {
         $arr = explode(' ', $fullName);
         return strtolower($firstLetter . $arr['1']) . rand(1, 99);
     }
-
     private function createUserPassword($userName) {
         return password_hash($userName, '2y');
     }
 
     private function createEmailProvider() {
-        $arr = [
-            "gmail.com",
-            "bluewin.ch",
-            "gmx.ch",
-            "msn.ch",
-            "sunrise.ch"
-        ];
-
+        $arr = [ "gmail.com", "bluewin.ch", "gmx.ch", "msn.ch", "sunrise.ch" ];
         $rand = array_rand($arr);
-
         return $arr[$rand];
+    }
+
+    public function createAddress() {
+        $arr = $this->createArrayFromJSON('streets');
+        foreach ($arr as $streets) {
+            $street = $this->getRandomValueFromArray($streets);
+        }
+        $houseNum = rand(1, 99);
+        return $street . " " . $houseNum;
     }
 
     public function createUser() {
@@ -163,21 +167,24 @@ class DummyUser {
         $userName = $this->createUserName($fullName);
 
         $user = [
-            'userID'        => $this->createUserId($lang),
-            'username'      => $userName,
-            'password'      => $this->createUserPassword($userName),
-            'language'      => $lang,
-            'first_name'    => $firstName,
-            'last_name'     => $lastName . " TEST",
-            'full_name'     => $fullName . " TEST",
-            'gender'        => $gender,
-            'company_id'    => 123456789,
-            'org_id'        => 1,
-            'is_demo_user'  => 1,
-            'is_real_user'  => 0,
-            'email'         => $userName . '@' . $this->createEmailProvider(),
-            'mut_user'      => 999999
+            'userID'            => $this->createUserId($lang),
+            'username'          => $userName,
+            'password'          => $this->createUserPassword($userName),
+            'language'          => $lang,
+            'first_name'        => $firstName,
+            'last_name'         => $lastName . " TEST",
+            'full_name'         => $fullName . " TEST",
+            'gender'            => $gender,
+            'address'           => $this->createAddress(),
+            'company_id'        => null,
+            'position'          => null,
+            'is_demo_user'      => 1,
+            'is_real_user'      => 0,
+            'personal_email'    => $userName . '@' . $this->createEmailProvider(),
+            'company_email'     => null,
+            'mut_user'          => 999999
         ];
+
         return $user;
     }
 }
@@ -185,7 +192,7 @@ class DummyUser {
 class DummyCorp extends DummyUser {
     public function __construct()
     {
-
+        parent::__construct();
     }
 
     private function createCompanyID() {
@@ -194,13 +201,14 @@ class DummyCorp extends DummyUser {
 
     private function createCompanyName($arr) {
         $nameArr = $arr['names'];
-        $num = count($nameArr);
-        return $nameArr[rand(0, $num)];
+        return $this->getRandomValueFromArray($nameArr);
     }
 
     private function createOrgStructureType() {
         return 'hierarchy';
     }
+
+
 
     private function createJobTitles($arr) {
         $branchArr = $arr['branches'];
@@ -237,22 +245,7 @@ class DummyCorp extends DummyUser {
         return $titleArr;
     }
 
-    private function getEmployeePositionLimit($arr) {
-        $jobs = $this->createJobTitles($arr);
-        foreach ($jobs as $key => $job) {
-            foreach ($job as $title) {
-                $jobs[$key]['acronym'] = $this->createTitleAcronym($job['title']);
-                if (strpos($job['title'], 'Associate')) {
-                    $jobs[$key]['empLimit'] = 7;
-                } else {
-                    $jobs[$key]['empLimit'] = 1;
-                }
-            }
-        }
-        return $jobs;
-    }
-
-    private function createTitleAcronym($title) {
+    private function createAcronym($title) {
         $words = explode(" ", $title);
         $acronym = "";
         foreach ($words as $word) {
@@ -263,21 +256,115 @@ class DummyCorp extends DummyUser {
         return $acronym;
     }
 
-
-    public function createCompany() {
-        $arr = $this->createArrayFromJSON('company');
-        $companyID = $this->createCompanyID();
-        $name = $this->createCompanyName($arr);
-        $structure = $this->createOrgStructureType();
-        $limits = $this->getEmployeePositionLimit($arr);
-        print_r($limits);
+    private function createCompanyEmail($employee, $company) {
+        $username = $employee['username'];
+        $companyName = $company['company_name'];
+        $explode = explode(" ", $companyName);
+        $num = count($explode);
+        if ($num < 2) {
+            $companyEmailSuffix = $companyName;
+        } elseif ($num == 2) {
+            $companyEmailSuffix = $explode[0];
+            if ($explode[1] == 'Corporation') {
+                $companyEmailSuffix .= substr($explode[1], 0, 4);
+            }
+        } else {
+            $companyEmailSuffix = '';
+            foreach ($explode as $word) {
+                $companyEmailSuffix .= substr($word, 0, 1);
+            }
+        }
+        $companyEmailSuffix .= ".ch";
+        return $username . "@" . strtolower($companyEmailSuffix);
     }
 
+    private function createJobPositions($arr) {
+        $jobs = $this->createJobTitles($arr);
+        foreach ($jobs as $key => $job) {
+            foreach ($job as $title) {
+                $jobs[$key]['acronym'] = $this->createAcronym($job['title']);
+                if (strpos($job['title'], 'Associate')) {
+                    $jobs[$key]['empLimit'] = 7;
+                    $jobs[$key]['employees'] = [];
+                } else {
+                    $jobs[$key]['empLimit'] = 1;
+                    $jobs[$key]['employee'] = '';
+                }
+            }
+        }
+        return $jobs;
+    }
 
+    private function createCompany() {
+        $arr = $this->createArrayFromJSON('company');
+        $company = [
+            'company_id'        => $this->createCompanyID(),
+            'company_name'      => $this->createCompanyName($arr),
+            'company_structure' => $this->createOrgStructureType(),
+            'company_address'   => $this->createAddress(),
+            'employee_list'     => []
+        ];
+        return $company;
+    }
+
+    private function addCompanyInfoToEmployee($employee, $acronym, $company) {
+        $employee = $this->updateArray($employee, 'position', $acronym);
+        $employee = $this->updateArray($employee, 'company_id', $company['company_id']);
+        $newEmail = $this->createCompanyEmail($employee, $company);
+        $employee = $this->updateArray($employee, 'company_email', $newEmail);
+        return $employee;
+    }
+
+    private function createEmployees($company) {
+        $arr = $this->createArrayFromJSON('company');
+        $jobs = $this->createJobPositions($arr);
+        $empList = [];
+        foreach ($jobs as $job) {
+            $limit = $job['empLimit'];
+            $acronym = $job['acronym'];
+            if ($limit == 1) {
+                $employee = $this->createUser();
+                $employee = $this->addCompanyInfoToEmployee($employee, $acronym, $company);
+                $empList[] = $employee;
+            } else {
+                for ($i = 0; $i < $limit; $i++) {
+                    $employee = $this->createUser();
+                    if (!in_array($employee['full_name'], $empList)) {
+                        $employee = $this->addCompanyInfoToEmployee($employee, $acronym, $company);
+                        $empList[] = $employee;
+                    } else {
+                        $i--;
+                    }
+                }
+            }
+        }
+        return $empList;
+    }
+
+    public function buildOrganization() {
+        $company = $this->createCompany();
+        $employees = $this->createEmployees($company);
+        $company = $this->updateArray($company, 'employee_list', $employees);
+        return $company;
+    }
+
+    public function writeDummyDataToJSON()
+    {
+        $company = $this->buildOrganization();
+        $jsonFile = realpath('/Users/kebensteiner/Documents/code/user-gen/dummyCompany.json');
+        if (!file_exists($jsonFile)) {
+            fopen('dummyCompany.json', 'w+');
+        }
+        $current = '';
+        $current .= json_encode($company, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+        file_put_contents('dummyCompany.json', $current);
+    }
 }
 
 
 /*$dummy = new DummyUser();
-$dummy->createCompany();*/
+$user = $dummy->createUser();*/
+
 $dummyCo = new DummyCorp();
-$dummyCo->createCompany();
+$dummyCo->writeDummyDataToJSON();

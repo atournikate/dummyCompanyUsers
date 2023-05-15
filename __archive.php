@@ -2,6 +2,10 @@
 
 include_once 'vendor/autoload.php';
 use Shuchkin\SimpleXLSX;
+
+/*const COMPANY_XLSX  = "company.xlsx";
+const NAME_XLSX     = "nameTable";*/
+
 /*public function createArrayFromExcel($tableName, $sheetName) {
     $xlsx = SimpleXLSX::parse($tableName);
     $metaData = $xlsx->sheetMeta();
@@ -54,3 +58,8 @@ file_put_contents('dummyUser.json', $current);
 }
 
 }*/
+
+//return $this->createArrayFromExcel(self::NAME_XLSX, $lang . self::SURNAMES);
+//return $this->createArrayFromExcel(self::NAME_XLSX, $lang . self::FIRSTNAMES_MALE);
+//return $this->createArrayFromExcel(self::NAME_XLSX, $lang . self::FIRSTNAMES_FEMALE);
+//return $this->createArrayFromExcel(self::NAME_XLSX, $lang . self::FIRSTNAMES_NB);
