@@ -121,7 +121,10 @@ class DummyUser {
             "ü" => "ue",
             "é" => "e",
             "ë" => "e",
-            "É" => "E"
+            "É" => "E",
+            "ï" => "i",
+            "&nbsp;" => "",
+            "&apos;" => ""
         ];
 
         foreach ($conversionArray as $original => $replacement) {
@@ -167,21 +170,21 @@ class DummyUser {
         $userName = $this->createUserName($fullName);
 
         $user = [
-            'userID'            => $this->createUserId($lang),
+            'user_id'           => $this->createUserId($lang),
             'username'          => $userName,
-            'password'          => $this->createUserPassword($userName),
-            'language'          => $lang,
+            'job_title'         => null,
+            'acronym'           => null,
             'first_name'        => $firstName,
-            'last_name'         => $lastName . " TEST",
-            'full_name'         => $fullName . " TEST",
+            'last_name'         => $lastName,
+            'full_name'         => $fullName,
+            'language'          => $lang,
             'gender'            => $gender,
             'address'           => $this->createAddress(),
-            'company_id'        => null,
-            'position'          => null,
+            'personal_email'    => $userName . '@' . $this->createEmailProvider(),
+            'email'             => null,
+            'password'          => $this->createUserPassword($userName),
             'is_demo_user'      => 1,
             'is_real_user'      => 0,
-            'personal_email'    => $userName . '@' . $this->createEmailProvider(),
-            'company_email'     => null,
             'mut_user'          => 999999
         ];
 
@@ -207,8 +210,6 @@ class DummyCorp extends DummyUser {
     private function createOrgStructureType() {
         return 'hierarchy';
     }
-
-
 
     private function createJobTitles($arr) {
         $branchArr = $arr['branches'];
@@ -271,6 +272,9 @@ class DummyCorp extends DummyUser {
         } else {
             $companyEmailSuffix = '';
             foreach ($explode as $word) {
+                if ($word == '&') {
+                    $word = "-";
+                }
                 $companyEmailSuffix .= substr($word, 0, 1);
             }
         }
@@ -307,11 +311,11 @@ class DummyCorp extends DummyUser {
         return $company;
     }
 
-    private function addCompanyInfoToEmployee($employee, $acronym, $company) {
-        $employee = $this->updateArray($employee, 'position', $acronym);
-        $employee = $this->updateArray($employee, 'company_id', $company['company_id']);
+    private function addCompanyInfoToEmployee($employee, $acronym, $title, $company) {
+        $employee = $this->updateArray($employee, 'job_title', $title);
+        $employee = $this->updateArray($employee, 'acronym', $acronym);
         $newEmail = $this->createCompanyEmail($employee, $company);
-        $employee = $this->updateArray($employee, 'company_email', $newEmail);
+        $employee = $this->updateArray($employee, 'email', $newEmail);
         return $employee;
     }
 
@@ -322,15 +326,16 @@ class DummyCorp extends DummyUser {
         foreach ($jobs as $job) {
             $limit = $job['empLimit'];
             $acronym = $job['acronym'];
+            $title = $job['title'];
             if ($limit == 1) {
                 $employee = $this->createUser();
-                $employee = $this->addCompanyInfoToEmployee($employee, $acronym, $company);
+                $employee = $this->addCompanyInfoToEmployee($employee, $acronym, $title, $company);
                 $empList[] = $employee;
             } else {
                 for ($i = 0; $i < $limit; $i++) {
                     $employee = $this->createUser();
                     if (!in_array($employee['full_name'], $empList)) {
-                        $employee = $this->addCompanyInfoToEmployee($employee, $acronym, $company);
+                        $employee = $this->addCompanyInfoToEmployee($employee, $acronym, $title, $company);
                         $empList[] = $employee;
                     } else {
                         $i--;
@@ -351,7 +356,7 @@ class DummyCorp extends DummyUser {
     public function writeDummyDataToJSON()
     {
         $company = $this->buildOrganization();
-        $jsonFile = realpath('/Users/kebensteiner/Documents/code/user-gen/dummyCompany.json');
+        $jsonFile = 'dummyCompany.json';
         if (!file_exists($jsonFile)) {
             fopen('dummyCompany.json', 'w+');
         }
@@ -359,6 +364,26 @@ class DummyCorp extends DummyUser {
         $current .= json_encode($company, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
         file_put_contents('dummyCompany.json', $current);
+    }
+
+    public function writeJSONtoSQLInsert() {
+        $json = file_get_contents('dummyCompany.json');
+        $data = json_decode($json, true);
+
+        $sql = "INSERT INTO sys_emp (user_id, username, job_title, acronym, first_name, last_name, full_name, `language`, gender, address, personal_email, company_email, `password`, is_demo_user, is_real_user, mut_user) VALUES ";
+
+        $empList = $data['employee_list'];
+        foreach ($empList as $emp) {
+            $sql .= "('" . $emp['user_id'] . "', '" . $emp['username'] . "', '" . $emp['job_title'] . "', '" . $emp['acronym'] . "', '" . $emp['first_name'] . "', '" . $emp['last_name'] . "', '" . $emp['full_name'] . "', '" . $emp['language'] . "', '" . $emp['gender'] . "', '" . $emp['address'] . "', '" . $emp['personal_email'] . "', '" . $emp['email'] . "', '" . $emp['password'] . "', '" . $emp['is_demo_user'] . "', '" . $emp['is_real_user'] . "', '" . $emp['mut_user'] . "'), \n";
+
+
+        }
+        $newSQLFile = 'dummyEmp.sql';
+        if (!file_exists($newSQLFile)) {
+            fopen('dummyEmp.sql', 'w+');
+        }
+
+        file_put_contents('dummyEmp.sql', $sql);
     }
 }
 
@@ -368,3 +393,4 @@ $user = $dummy->createUser();*/
 
 $dummyCo = new DummyCorp();
 $dummyCo->writeDummyDataToJSON();
+$dummyCo->writeJSONtoSQLInsert();
