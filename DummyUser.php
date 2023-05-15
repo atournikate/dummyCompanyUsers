@@ -366,11 +366,11 @@ class DummyCorp extends DummyUser {
         file_put_contents('dummyCompany.json', $current);
     }
 
-    public function writeJSONtoSQLInsert() {
+    public function writeJSONtoSQLInsert($table) {
         $json = file_get_contents('dummyCompany.json');
         $data = json_decode($json, true);
 
-        $sql = "INSERT INTO sys_emp (user_id, username, job_title, acronym, first_name, last_name, full_name, `language`, gender, address, personal_email, company_email, `password`, is_demo_user, is_real_user, mut_user) VALUES ";
+        $sql = "INSERT INTO $table (user_id, username, job_title, acronym, first_name, last_name, full_name, `language`, gender, address, personal_email, company_email, `password`, is_demo_user, is_real_user, mut_user) VALUES ";
 
         $empList = $data['employee_list'];
         foreach ($empList as $emp) {
@@ -393,4 +393,4 @@ $user = $dummy->createUser();*/
 
 $dummyCo = new DummyCorp();
 $dummyCo->writeDummyDataToJSON();
-$dummyCo->writeJSONtoSQLInsert();
+$dummyCo->writeJSONtoSQLInsert('sys_emp');
